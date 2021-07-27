@@ -1,0 +1,51 @@
+[
+  {
+    "operation": "shift",
+    "spec": {
+      "result": {
+        "radiant_win": "radiant_win",
+        "duration": "duration",
+        "start_time": "start_time",
+        "match_id": "match_id",
+        "cluster": "cluster",
+        "lobby_type": "lobby_type",
+        "players": {
+          "*": {
+            "account_id": "players[&1].account_id",
+            "player_slot": "players[&1].player_slot",
+            "hero_id": "players[&1].hero_id",
+            "item_0": "players[&1].item_0",
+            "item_1": "players[&1].item_1",
+            "item_2": "players[&1].item_2",
+            "item_3": "players[&1].item_3",
+            "item_4": "players[&1].item_4",
+            "item_5": "players[&1].item_5",
+            "backpack_0": "players[&1].backpack_0",
+            "backpack_1": "players[&1].backpack_1",
+            "backpack_2": "players[&1].backpack_2",
+            "item_neutral": "players[&1].item_neutral",
+            "leaver_status": "players[&1].leaver_status",
+            "gold_per_min": "players[&1].gold_per_min",
+            "xp_per_min": "players[&1].xp_per_min"
+          }
+        }
+      }
+    }
+    },
+  {
+    "operation": "shift",
+    "spec": {
+      "players": {
+        "*": {
+          "*": "players.[&1].&",
+          "@(2,radiant_win)": "players.[&1].radiant_win",
+          "@(2,duration)": "players.[&1].duration",
+          "@(2,start_time)": "players.[&1].start_time",
+          "@(2,match_id)": "players.[&1].match_id",
+          "@(2,cluster)": "players.[&1].cluster",
+          "@(2,lobby_type)": "players.[&1].lobby_type"
+        }
+      }
+    }
+    }
+]
