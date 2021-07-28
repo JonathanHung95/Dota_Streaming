@@ -1,4 +1,5 @@
 # for config files that I don't want going to github
+# and old stuff that doesn't work now
 
 /dota_kafka.txt
 /misc/windows_setup.txt
