@@ -9,6 +9,8 @@ The API will return a JSON object of the data in both cases (data examples can b
 
 ### NiFi
 
+![NiFi Flow](assets/nifi_flow.png)
+
 I use NiFi to ingest data from the Dota API and direct it to our CDC database (a mysql database in this case).  Note that NiFi is set to pull data once every 2 seconds here.  This is because Steam limits API calls to 100,000 a day and since I need to make 2 calls to the API, I can't call at a higher rate.
 
 Additionally, I use a JOLT JSON Transformer in order to hammer the JSON object into something that fits the database better.  This includes removing data that I'm not interested in and transforming the single JSON into an array of 10 entries, each corresponding to a different player from the match.  This allows me to use the Split JSON processor to split the JSON into 10 entries before it hits the Convert JSON to SQL and Put SQL processors.
