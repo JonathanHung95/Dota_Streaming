@@ -112,7 +112,7 @@ class StreamingJobExecutor(spark: SparkSession, kafkaReaderConfig: KafkaReaderCo
             (batchDF: DataFrame, _: Long) => {
                 batchDF.write.format("org.apache.hudi")
                 .option("hoodie.datasource.write.table.type", "COPY_ON_WRITE")
-                .option("hoodie.datasource.write.precombine.field", "start_time")
+                .option("hoodie.datasource.write.precombine.field", "duration")
                 .option("hoodie.datasource.write.recordkey.field", "hero")
                 .option("hoodie.datasource.write.partitionpath.field", "match_id")
                 .option("hoodie.table.name", "match_data")
