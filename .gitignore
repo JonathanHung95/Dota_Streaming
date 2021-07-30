@@ -7,3 +7,5 @@
 /misc/Dota_Streaming_old.xml
 /misc/JOLT_spec_old.json
 /misc/old_converted_match_6102206720.json
+/src/spark_streaming/project/*
+/src/spark_streaming/target/*
