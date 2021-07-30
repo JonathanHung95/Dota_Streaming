@@ -47,7 +47,7 @@ object StreamingJob extends App {
     ))
     */
 
-    val schema = spark.read.json("file:///jars/test.json").schema
+    val jsonSchema = spark.read.json("file:///jars/test.json").schema
 
     val kafkaReaderConfig = KafkaReaderConfig("kafka:9092", "dbserver1.dota.match_data")
     new StreamingJobExecutor(spark, kafkaReaderConfig, currentDirectory + "/checkpoint/job", jsonSchema).execute()
