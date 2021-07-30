@@ -69,7 +69,6 @@ class StreamingJobExecutor(spark: SparkSession, kafkaReaderConfig: KafkaReaderCo
     def execute() = {
         // get kafka data -> json
 
-        // val df = spark.read.option("multiline", "true").json("D:\\WCD\\Dota_Streaming\\data\\sample\\test.json")
         val df = read().select(from_json($"value".cast("string"), schema).as("value"))
 
         // convert unix time to timestamp
@@ -106,14 +105,34 @@ class StreamingJobExecutor(spark: SparkSession, kafkaReaderConfig: KafkaReaderCo
                                                 col("backpack_1"), col("backpack_2"), col("item_neutral")))
                         .drop("item_0", "item_1", "item_2", "item_3", "item_4", "item_5", "backpack_0", "backpack_1", "backpack_2", "item_neutral")
 
-        // gonna leave this here for now so i can check on the transformations before committing to Hudi
+        df5.select($"value.payload.after.*")
+            .writeStream
+            .queryName("write_to_hudi")
+            .foreachBatch{
+            (batchDF: DataFrame, _: Long) => {
+                batchDF.write.format("org.apache.hudi")
+                .option("hoodie.datasource.write.table.type", "COPY_ON_WRITE")
+                .option("hoodie.datasource.write.precombine.field", "start_time")
+                .option("hoodie.datasource.write.recordkey.field", "hero")
+                .option("hoodie.datasource.write.partitionpath.field", "match_id")
+                .option("hoodie.table.name", "match_data")
+                .option("hoodie.datasource.write.hive_style_partitioning", true)
+                .mode(SaveMode.Append)
+                .save("/tmp/sparkHudi/match_data")
+                }
+            }
+            .option("checkpointLocation", "/tmp/sparkHudi/checkpoint/")
+            .start()
+            .awaitTermination()
 
+        /*
         df5.select($"value.payload.after.*")
             .writeStream.option("checkpointLocation", "/checkpoint/job")
             .format("console")
             .option("truncate", "false")
             .start()
             .awaitTermination() 
+        */
     }
 
 }

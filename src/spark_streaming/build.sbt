@@ -1,4 +1,4 @@
-name := "spark_streaming"
+name := "dota_spark_streaming"
 
 version := "1.0"
 scalaVersion := "2.12.8"
