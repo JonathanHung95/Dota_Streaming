@@ -124,15 +124,5 @@ class StreamingJobExecutor(spark: SparkSession, kafkaReaderConfig: KafkaReaderCo
             .option("checkpointLocation", "/tmp/sparkHudi/checkpoint/")
             .start()
             .awaitTermination()
-
-        /*
-        df5.select($"value.payload.after.*")
-            .writeStream.option("checkpointLocation", "/checkpoint/job")
-            .format("console")
-            .option("truncate", "false")
-            .start()
-            .awaitTermination() 
-        */
     }
-
 }
