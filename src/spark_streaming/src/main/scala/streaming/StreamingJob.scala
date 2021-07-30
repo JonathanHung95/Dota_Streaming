@@ -20,7 +20,7 @@ object StreamingJob extends App {
     val currentDirectory = new java.io.File(".").getCanonicalPath
 
     // json schema
-    
+    /*
     val jsonSchema = StructType(Array(
         StructField("account_id", LongType, true),
         StructField("backpack_0", LongType, true),
@@ -45,6 +45,9 @@ object StreamingJob extends App {
         //StructField("start_time", LongType, true),
         StructField("xp_per_min", LongType, true)
     ))
+    */
+
+    val schema = spark.read.json("file:///jars/test.json").schema
 
     val kafkaReaderConfig = KafkaReaderConfig("kafka:9092", "dbserver1.dota.match_data")
     new StreamingJobExecutor(spark, kafkaReaderConfig, currentDirectory + "/checkpoint/job", jsonSchema).execute()
