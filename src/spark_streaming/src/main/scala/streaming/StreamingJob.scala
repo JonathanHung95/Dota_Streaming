@@ -108,7 +108,7 @@ class StreamingJobExecutor(spark: SparkSession, kafkaReaderConfig: KafkaReaderCo
 
         // gonna leave this here for now so i can check on the transformations before committing to Hudi
 
-        df4.select($"value.payload.after.*")
+        df5.select($"value.payload.after.*")
             .writeStream.option("checkpointLocation", "/checkpoint/job")
             .format("console")
             .option("truncate", "false")
