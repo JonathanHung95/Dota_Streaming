@@ -21,7 +21,7 @@ object StreamingJob extends App {
 
     val jsonSchema = spark.read.option("multiline", "true").json("file:///jars/test2.json").schema
 
-    val jdbcConfig = JDBCConfig(url = "jdbc:postgresql://localhost:5432/dota") //post gres
+    val jdbcConfig = JDBCConfig(url = "jdbc:postgresql://172.17.0.9:5432/dota") //post gres
 
     val kafkaReaderConfig = KafkaReaderConfig("kafka:9092", "dbserver1.dota.match_data")
     new StreamingJobExecutor(spark, kafkaReaderConfig, currentDirectory + "/checkpoint/job", jsonSchema, jdbcConfig).execute()
