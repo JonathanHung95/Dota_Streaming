@@ -17,9 +17,9 @@ object StreamingJob extends App {
                             .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
                             .getOrCreate()
 
-    spark.sparkContext.hadoopConfiguration.set("fs.s3.access.key", "AKIASVOJD6ASL4C2YCPL")
-    spark.sparkContext.hadoopConfiguration.set("fs.s3.secret.key", "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")
-    spark.sparkContext.hadoopConfiguration.set("fs.s3.endpoint", "s3.amazonaws.com")
+    spark.sparkContext.hadoopConfiguration.set("fs.s3a.access.key", "AKIASVOJD6ASL4C2YCPL")
+    spark.sparkContext.hadoopConfiguration.set("fs.s3a.secret.key", "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")
+    spark.sparkContext.hadoopConfiguration.set("fs.s3a.endpoint", "s3.amazonaws.com")
 
     val currentDirectory = new java.io.File(".").getCanonicalPath
 
@@ -47,7 +47,7 @@ class StreamingJobExecutor(spark: SparkSession, kafkaReaderConfig: KafkaReaderCo
     def execute(): Unit = {
         // get kafka data -> json
 
-        val s3_bucket = "s3://dota_streaming/"
+        val s3_bucket = "s3a://dota_streaming/"
 
         val df = read().select(from_json($"value".cast("string"), schema).as("value"))
         /*
