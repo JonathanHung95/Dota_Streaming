@@ -40,7 +40,7 @@ Transformations
 
 I use Superset to make a simple dashboard to analyze the data as it comes in.  It's set to auto-refresh every 30 seconds, allowing it to display data in a more real-time manner.
 
-![Superset Dashboard](assets/dashboard.png)
+![Superset Dashboard](assets/dashboard.jpg)
 
 ### Setup
 
