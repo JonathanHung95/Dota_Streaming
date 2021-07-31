@@ -9,4 +9,4 @@
 /src/spark_streaming/project/*
 !/src/spark_streaming/project/plugins.sbt
 /src/spark_streaming/target/*
-/docker-compose2.yml
+/misc/more_misc.txt

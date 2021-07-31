@@ -29,10 +29,78 @@ Some specifics:
 
 ### Spark Streaming
 
-The spark job is set up to handle the streaming data from kafka and do a few simple transformations and then output to Hudi and Postgresql.  
+The spark job is set up to handle the streaming data from kafka and do a few simple transformations and then output to Hudi and Postgresql.
+
+Transformations
+1. Convert hero and item ids into the actual names
+2. Convert the unix time stamp into a human-readable time stamp
+3. Convert the radiant_win column into a neutral win value (ie. not depending on the team)
 
 ### Superset
 
-I use Superset to make a simple dashboard to analyze the data as it comes in.
+I use Superset to make a simple dashboard to analyze the data as it comes in.  It's set to auto-refresh every 30 seconds, allowing it to display data in a more real-time manner.
 
 ![Superset Dashboard](assets/dashboard.png)
+
+### Setup
+
+Roughly how to set-up the project.  
+
+Clone the repository into your EC2 instance and run:
+
+```
+wget http://www.java2s.com/Code/JarDownload/mysql/mysql-connector-java-5.1.17-bin.jar.zip
+unzip mysql-connector-java-5.1.17-bin.jar.zip 
+docker-compose up
+```
+
+This will download the JDBC connector to the /home/ directory which is mounted to the NiFi image in the docker-compose.
+
+You can access NiFi on http://EC_2_IP:8080/nifi/ .  Configure the JDBC connector to /opt/nifi/nifi-current/custom-jar/mysql-connector-java-8.0.25 so that NiFi can write to the MySQL CDC.  Load the Dota_Streaming_Template.xml into NiFi; this will give the full template used.  You may have to edit the api_key in the GetConfig processor.
+
+Run:
+
+```
+docker exec -it mysql bash
+```
+
+To access the mysql container and set up the necessary database and table.  Table code can be found in dota_mysql.sql.  To deploy the debezium connector:
+
+```
+curl -i -X POST -H "Accept:application/json" -H "Content-Type:application/json" localhost:8083/connectors/ -d '{ "name": "inventory-connector", "config": { "connector.class": "io.debezium.connector.mysql.MySqlConnector", "tasks.max": "1", "database.hostname": "mysql", "database.port": "3306", "database.user": "root", "database.password": "debezium", "database.server.id": "184054", "database.server.name": "dbserver1", "database.include.list": "dota", "database.history.kafka.bootstrap.servers": "kafka:9092", "database.history.kafka.topic": "dbhistory.dota" } }'
+```
+
+To check the connectors:
+
+```
+curl -H "Accept:application/json" localhost:8083
+curl -H "Accept:application/json" localhost:8083/connectors/
+```
+
+To check that kafka is ingesting data:
+
+```
+docker exec -it kafka bash
+bin/kafka-console-consumer.sh  --topic dbserver1.dota.match_data --bootstrap-server CONTAINER_IP:9092
+```
+
+To set up the Postgresql database:
+
+```
+docker exec -it postgres bash
+psql -h localhost -p 5432 -U postgres -W
+```
+
+The sql for the postgres table can be found in the src folder.
+
+To run the jar in the spark job:
+
+```
+docker exec -it spark-master bash
+spark/bin/spark-submit jars/dota_spark_streaming_2.12.8-1.0.jar --class dota_streaming.streaming.StreamingJob
+```
+
+This will run the spark job to process the data and write to Hudi and Postgresql database.
+
+Superset can be accessed at http://EC2_IP:8081/admin/.  From here, you can make dashboards and/or illustrate the data.
+

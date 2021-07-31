@@ -1,4 +1,4 @@
 get latest matches (10 here): https://api.steampowered.com/IDOTA2Match_570/GetMatchHistory/V001/?key=API_KEY&matches_requested=10
-get match details: https://api.steampowered.com/IDOTA2Match_570/GetMatchDetails/V001/?match_id=MATCHID&key=APIKE
+get match details: https://api.steampowered.com/IDOTA2Match_570/GetMatchDetails/V001/?match_id=MATCHID&key=API_KEY
 get heroes: https://api.steampowered.com/IEconDOTA2_570/GetHeroes/v0001/?key=API_KEY
 get items: https://api.steampowered.com/IEconDOTA2_570/GetGameItems/V001/?key=API_KEY&language=EN
