@@ -34,3 +34,5 @@ The spark job is set up to handle the streaming data from kafka and do a few sim
 ### Superset
 
 I use Superset to make a simple dashboard to analyze the data as it comes in.
+
+![Superset Dashboard](assets/dashboard.png)
