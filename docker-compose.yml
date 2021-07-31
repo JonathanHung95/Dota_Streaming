@@ -59,7 +59,7 @@ services:
       - DB_PASS=password
       - DB_NAME=dota
     ports:
-      - "5432:5432"
+      - 5432:5432
   nifi:
     image: apache/nifi:1.13.2
     container_name: nifi
@@ -85,10 +85,15 @@ services:
     image: bde2020/spark-worker:3.1.1-hadoop3.2
     container_name: spark-worker
     ports:
-      - 8081:8081
+      - 8090:8090
     links:
       - spark-master
       - kafka
     environment:
       - SPARK_MASTER=spark://spark-master:7077
+  superset:
+    image: apache/superset
+    container_name: superset
+    ports:
+      - 8081:8088
         
