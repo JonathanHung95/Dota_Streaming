@@ -108,7 +108,8 @@ class StreamingJobExecutor(spark: SparkSession, kafkaReaderConfig: KafkaReaderCo
                 .option("hoodie.table.name", "match_data")
                 .option("hoodie.datasource.write.hive_style_partitioning", true)
                 .mode(SaveMode.Append)
-                .save(s3_bucket)
+                //.save(s3_bucket)
+                .save("/tmp/sparkHudi/match_data")
                 }
             }
             .option("checkpointLocation", "/tmp/sparkHudi/checkpoint/")
