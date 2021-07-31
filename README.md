@@ -96,11 +96,12 @@ The sql for the postgres table can be found in the src folder.
 To run the jar in the spark job:
 
 ```
+cp /Dota_Streaming/data/test2.json .
 docker exec -it spark-master bash
 spark/bin/spark-submit jars/dota_spark_streaming_2.12.8-1.0.jar --class dota_streaming.streaming.StreamingJob
 ```
 
-This will run the spark job to process the data and write to Hudi and Postgresql database.
+This will copy the test2.json file to the home directory so that the spark job can use it to infer the schema for the data ingested from kafka. Run the spark job to process the data and write to Hudi and Postgresql database.
 
 Superset can be accessed at http://EC2_IP:8081/admin/.  From here, you can make dashboards and/or illustrate the data.
 
