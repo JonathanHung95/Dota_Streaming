@@ -1,0 +1,57 @@
+docker cp /home/ec2-user/Dota_Streaming/src/spark_streaming admiring_napier:/test/
+
+
+~/Dota_Streaming/src/spark_streaming/target/scala-2.12/dota_spark_streaming_2.12.8-1.0.jar
+
+
+36d5246d54c8
+
+docker cp 36d5246d54c8:/root/Dota_Streaming/src/spark_streaming/target/scala-2.12/dota_spark_streaming_2.12.8-1.0.jar .
+
+spark/bin/spark-submit jars/dota_spark_streaming_2.12.8-1.0.jar --class dota_streaming.streaming.StreamingJob
+
+
+rm dota_spark_streaming_2.12.8-1.0.jar
+
+git clone https://github.com/JonathanHung95/Dota_Streaming.git
+cd Dota_Streaming/src/spark_streaming/
+
+ls /tmp/sparkHudi/match_data/match_id\=6113006246
+
+val df = spark.read.format("hudi").load("/tmp/sparkHudi/match_data")
+
+val df = spark.read.format("hudi").load("/tmp/dota_streaming/match_data")
+
+docker run --name postgresql -dit -e POSTGRES_USER=jonathan -e POSTGRES_PASSWORD=password -e POSTGRES_DB-dota -p 5432:5432 -v postgresql:/var/lib/postgresql postgres:9.6
+
+docker run --name postgres -e POSTGRES_PASSWORD=password -p 5432:5432 -dit postgres
+
+psql -h localhost -p 5432 -U postgres -W
+
+CREATE TABLE match_data(
+account_id BIGINT,
+backpack_0 VARCHAR(255),
+backpack_1 VARCHAR(255),
+backpack_2 VARCHAR(255),
+cluster INT,
+duration INT,
+gold_per_min INT,
+hero VARCHAR(255),
+item_0 VARCHAR(255),
+item_1 VARCHAR(255),
+item_2 VARCHAR(255),
+item_3 VARCHAR(255),
+item_4 VARCHAR(255),
+item_5 VARCHAR(255),
+item_neutral VARCHAR(255),
+leaver_status INT,
+lobby_type INT,
+match_id BIGINT,
+player_slot INT,
+win BOOLEAN,
+start_time TIMESTAMP,
+xp_per_min INT);
+
+http://18.116.89.87:8081/login/
+
+SELECT COUNT(DISTINCT account_id), EXTRACT(HOUR FROM start_time) AS hour FROM public.match_data GROUP BY hour;

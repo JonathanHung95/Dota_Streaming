@@ -1,6 +1,8 @@
 # Dota_Streaming
 Project to demonstrate an end-to-end streaming pipeline for data engineering purposes.  I aim to stream data from the Dota API using NiFi, feed the data to a Change Data Capture (CDC) database, perform data transformations via Spark Streaming and then write to a table to be utilized by a front end dashboard.
 
+![Flow Diagram](assets/flow_diagram.png)
+
 ### Dota 2 API calls
 
 Data can be obtained from the Dota 2 API using HTTP requests.  In this case, I use 2 HTTP requests; the first is to pull the latest match id from the API and the second is to use the match id to pull the full match details.  I also do 2 one-off requests to pull the hero and item data.
@@ -27,4 +29,8 @@ Some specifics:
 
 ### Spark Streaming
 
-Still working to make this work as a proper Spark-Job.
+The spark job is set up to handle the streaming data from kafka and do a few simple transformations and then output to Hudi and Postgresql.  
+
+### Superset
+
+I use Superset to make a simple dashboard to analyze the data as it comes in.
