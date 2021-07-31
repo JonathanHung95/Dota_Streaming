@@ -21,7 +21,7 @@ val streamingDeps = Seq(
   "com.typesafe" % "config" % "1.4.0",
   "org.slf4j" % "slf4j-simple" % "1.7.30",
   "org.apache.hudi" %% "hudi-spark3-bundle" % "0.8.0",
-  "org.apache.spark" %% "spark-avro" % "3.0.1"
+  "org.apache.spark" %% "spark-avro" % "3.1.1"
 )
 
 lazy val root = (project in file(".")).
