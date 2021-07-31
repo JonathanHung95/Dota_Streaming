@@ -17,21 +17,21 @@ object StreamingJob extends App {
                             .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
                             .getOrCreate()
 
-    spark.sparkContext.hadoopConfiguration.set("fs.s3a.access.key", "AKIASVOJD6ASL4C2YCPL")
-    spark.sparkContext.hadoopConfiguration.set("fs.s3a.secret.key", "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")
-    spark.sparkContext.hadoopConfiguration.set("fs.s3a.endpoint", "s3.amazonaws.com")
-
     val currentDirectory = new java.io.File(".").getCanonicalPath
 
     val jsonSchema = spark.read.option("multiline", "true").json("file:///jars/test2.json").schema
 
+    val jdbcConfig = JDBCConfig(url = "jdbc:postgresql://localhost:5432/dota") //post gres
+
     val kafkaReaderConfig = KafkaReaderConfig("kafka:9092", "dbserver1.dota.match_data")
-    new StreamingJobExecutor(spark, kafkaReaderConfig, currentDirectory + "/checkpoint/job", jsonSchema).execute()
+    new StreamingJobExecutor(spark, kafkaReaderConfig, currentDirectory + "/checkpoint/job", jsonSchema, jdbcConfig).execute()
 }
+
+case class JDBCConfig(url: String, user: String = "postgres", password: String = "password", tableName: String = "match_data") //postgres
 
 case class KafkaReaderConfig(kafkaBootstrapServers: String, topics: String, startingOffsets: String = "latest")
 
-class StreamingJobExecutor(spark: SparkSession, kafkaReaderConfig: KafkaReaderConfig, checkpointLocation: String, schema: StructType) {
+class StreamingJobExecutor(spark: SparkSession, kafkaReaderConfig: KafkaReaderConfig, checkpointLocation: String, schema: StructType, jdbcConfig: JDBCConfig) {
 
     import spark.implicits._
 
@@ -80,13 +80,6 @@ class StreamingJobExecutor(spark: SparkSession, kafkaReaderConfig: KafkaReaderCo
                                         .when((col("player_slot") < 10) && (col("radiant_win") === true), true)
                                         .when((col("player_slot") > 10) && (col("radiant_win") != true), true)
                                         .when((col("player_slot") < 10) && (col("radiant_win") != true), false))
-
-        // convert all the individual item columns into a single array column: items
-        /*
-        val df6 = df5.withColumn("items", array(col("item_0"), col("item_1"), col("item_2"), col("item_3"), col("item_4"), col("item_5"), col("backpack_0"), 
-                                                col("backpack_1"), col("backpack_2"), col("item_neutral")))
-                        .drop("item_0", "item_1", "item_2", "item_3", "item_4", "item_5", "backpack_0", "backpack_1", "backpack_2", "item_neutral")
-        */
         
         df5.writeStream
             .queryName("write_to_hudi")
@@ -100,13 +93,21 @@ class StreamingJobExecutor(spark: SparkSession, kafkaReaderConfig: KafkaReaderCo
                 .option("hoodie.table.name", "match_data")
                 .option("hoodie.datasource.write.hive_style_partitioning", true)
                 .mode(SaveMode.Append)
-                //.save(s3_bucket)
                 .save("/tmp/dota_streaming/match_data")
+
+                batchDF.write.format("jdbc") //postgres
+                        .option("url", jdbcConfig.url)
+                        .option("user", jdbcConfig.user)
+                        .option("password", jdbcConfig.password)
+                        .option("driver", "org.postgresql.Driver")
+                        .option(JDBCOptions.JDBC_TABLE_NAME, jdbcConfig.tableName)
+                        .option("stringtype", "unspecified")
+                        .mode(SaveMode.Append)
+                        .save()
                 }
             }
             .option("checkpointLocation", "/tmp/sparkHudi/checkpoint/")
             .start()
-            .awaitTermination()
-        
+            .awaitTermination()     
     }
 }

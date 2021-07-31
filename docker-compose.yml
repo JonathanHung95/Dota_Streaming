@@ -1,26 +1,94 @@
----
-    version: '2'
-    services:
-      zookeeper:
-        image: confluentinc/cp-zookeeper:latest
-        environment:
-          ZOOKEEPER_CLIENT_PORT: 2181
-          ZOOKEEPER_TICK_TIME: 2000
-    
-      kafka:
-        image: confluentinc/cp-kafka:latest
-        depends_on:
-          - zookeeper
-        ports:
-          - 9092:9092
-        environment:
-          KAFKA_BROKER_ID: 1
-          KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-          KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
-          KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-          KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-          KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      nifi:
-        image: apache/nifi:latest
-        ports:
-          - 8080:8080
+version: '1.0'
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: zookeeper
+    ports:
+      - 2181:2181
+      - 2888:2888
+      - 3888:3888
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+      - ZOOKEEPER_CLIENT_PORT=2181
+      - ZOOKEEPER_TICK_TIME=2000
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka
+    ports:
+      - 9092:9092
+      - 29092:29092
+    depends_on:
+      - zookeeper
+    environment:
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      - KAFKA_INTER_BROKER_LISTENER_NAME=PLAINTEXT
+      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+  mysql:
+    image: debezium/example-mysql:1.0
+    container_name: mysql
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=debezium
+      - MYSQL_USER=mysqluser
+      - MYSQL_PASSWORD=mysqlpw
+  connect:
+    image: debezium/connect:1.0
+    container_name: connect
+    ports:
+      - 8083:8083
+    depends_on:
+      - kafka
+      - mysql
+    environment:
+      - BOOTSTRAP_SERVERS=kafka:9092
+      - GROUP_ID=1
+      - CONFIG_STORAGE_TOPIC=my_connect_configs
+      - OFFSET_STORAGE_TOPIC=my_connect_offsets
+      - STATUS_STORAGE_TOPIC=my_connect_statuses
+  postgresql:
+    image: sameersbn/postgresql:9.4
+    container_name: postgresql
+    volumes:
+      - pgdata:/var/lib/postgresql
+    environment:
+      - DEBUG=false
+      - DB_USER=jonathan
+      - DB_PASS=password
+      - DB_NAME=dota
+    ports:
+      - "5432:5432"
+  nifi:
+    image: apache/nifi:1.13.2
+    container_name: nifi
+    volumes:
+      - ~/mysql-connector-java-8.0.25:/opt/nifi/nifi-current/custom-jar/mysql-connector-java-8.0.25
+    ports:
+      - 8080:8080
+    links:
+      - mysql
+    environment:
+      - NIFI_WEB_HTTP_PORT=8080
+  spark-master:
+    image: bde2020/spark-master:3.1.1-hadoop3.2
+    container_name: spark-master
+    ports:
+      - 7077:7077
+      - 8555:8080
+    links:
+      - kafka
+    environment:
+      - INIT_DAEMON_STEP=setup_spark
+  spark-worker:
+    image: bde2020/spark-worker:3.1.1-hadoop3.2
+    container_name: spark-worker
+    ports:
+      - 8081:8081
+    links:
+      - spark-master
+      - kafka
+    environment:
+      - SPARK_MASTER=spark://spark-master:7077
+        
