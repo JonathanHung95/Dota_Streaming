@@ -79,7 +79,7 @@ class StreamingJobExecutor(spark: SparkSession, kafkaReaderConfig: KafkaReaderCo
         val df5 = df4.withColumn("win", when((col("player_slot") > 10) && (col("radiant_win") === true), false)
                                         .when((col("player_slot") < 10) && (col("radiant_win") === true), true)
                                         .when((col("player_slot") > 10) && (col("radiant_win") != true), true)
-                                        .when((col("player_slot") < 10) && (col("radiant_win") != true), false))
+                                        .when((col("player_slot") < 10) && (col("radiant_win") != true), false)).drop(col("radiant_win"))
         
         df5.writeStream
             .queryName("write_to_hudi")
