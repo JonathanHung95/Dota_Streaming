@@ -52,7 +52,7 @@ services:
     image: sameersbn/postgresql:9.4
     container_name: postgresql
     volumes:
-      - pgdata:/var/lib/postgresql
+      - ./pgdata:/var/lib/postgresql
     environment:
       - DEBUG=false
       - DB_USER=jonathan
