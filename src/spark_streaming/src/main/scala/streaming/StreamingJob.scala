@@ -50,14 +50,6 @@ class StreamingJobExecutor(spark: SparkSession, kafkaReaderConfig: KafkaReaderCo
         val s3_bucket = "s3a://dota_streaming/"
 
         val df = read().select(from_json($"value".cast("string"), schema).as("value"))
-        /*
-        df.select($"value.payload.after.*")
-            .writeStream.option("checkpointLocation", "/checkpoint/job")
-            .format("console")
-            .option("truncate", "false")
-            .start()
-            .awaitTermination() 
-        */
 
         val df2 = df.select($"value.payload.after.*")
 
@@ -90,13 +82,13 @@ class StreamingJobExecutor(spark: SparkSession, kafkaReaderConfig: KafkaReaderCo
                                         .when((col("player_slot") < 10) && (col("radiant_win") != true), false))
 
         // convert all the individual item columns into a single array column: items
-        
+        /*
         val df6 = df5.withColumn("items", array(col("item_0"), col("item_1"), col("item_2"), col("item_3"), col("item_4"), col("item_5"), col("backpack_0"), 
                                                 col("backpack_1"), col("backpack_2"), col("item_neutral")))
                         .drop("item_0", "item_1", "item_2", "item_3", "item_4", "item_5", "backpack_0", "backpack_1", "backpack_2", "item_neutral")
-
+        */
         
-        df6.writeStream
+        df5.writeStream
             .queryName("write_to_hudi")
             .foreachBatch{
             (batchDF: DataFrame, _: Long) => {
@@ -109,7 +101,7 @@ class StreamingJobExecutor(spark: SparkSession, kafkaReaderConfig: KafkaReaderCo
                 .option("hoodie.datasource.write.hive_style_partitioning", true)
                 .mode(SaveMode.Append)
                 //.save(s3_bucket)
-                .save("/tmp/sparkHudi/match_data")
+                .save("/tmp/dota_streaming/match_data")
                 }
             }
             .option("checkpointLocation", "/tmp/sparkHudi/checkpoint/")
